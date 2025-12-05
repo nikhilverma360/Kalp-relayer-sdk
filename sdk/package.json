@@ -1,0 +1,21 @@
+{
+  "name": "kalp-relayer-sdk",
+  "version": "0.1.0",
+  "description": "Universal Kalp relayer SDK for EIP-712 gasless transactions",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "ethers": "^5.7.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
+
