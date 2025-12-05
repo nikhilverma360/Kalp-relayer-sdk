@@ -47,8 +47,8 @@ export const createMetaMaskSigner = (): SignTypedDataFunction => {
     // Request accounts first to ensure MetaMask is connected
     await window.ethereum.request({ method: 'eth_requestAccounts' });
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
     const address = await signer.getAddress();
 
     // EIP-712 requires EIP712Domain type to be included
@@ -104,15 +104,16 @@ export const createMetaMaskSigner = (): SignTypedDataFunction => {
 };
 
 /**
- * Create an Ethers.js JsonRpcSigner-compatible EIP-712 signer
+ * Create an Ethers.js Signer-compatible EIP-712 signer
  *
- * @param signer - Ethers.js Signer instance
- * @returns SignTypedDataFunction using ethers _signTypedData
+ * @param signer - Ethers.js Signer instance (v6)
+ * @returns SignTypedDataFunction using ethers signTypedData
  *
  * @example
  * ```typescript
- * const provider = new ethers.providers.Web3Provider(window.ethereum);
- * const signer = provider.getSigner();
+ * // Ethers v6
+ * const provider = new ethers.BrowserProvider(window.ethereum);
+ * const signer = await provider.getSigner();
  * const signerFn = createEthersSigner(signer);
  * const sdk = new KalpRelaySDK(config, signerFn);
  * ```

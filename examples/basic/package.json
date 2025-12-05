@@ -1,13 +1,13 @@
 {
   "name": "kalp-relayer-example-basic",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "scripts": {
     "dev": "ts-node --transpile-only --compiler-options '{\"module\":\"CommonJS\"}' src/index.ts"
   },
   "dependencies": {
     "kalp-relayer-sdk": "file:../../sdk",
-    "ethers": "^5.7.2"
+    "ethers": "^6.13.0"
   },
   "devDependencies": {
     "ts-node": "^10.9.2",

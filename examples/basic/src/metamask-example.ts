@@ -1,7 +1,8 @@
 /**
- * MetaMask Browser Example
+ * MetaMask Browser Example (Ethers v6)
  *
  * This example shows how to use the Kalp Relayer SDK with MetaMask in a browser environment.
+ * Uses Ethers v6 with BrowserProvider.
  *
  * Usage:
  * 1. Import this in your React/Vue/vanilla JS app

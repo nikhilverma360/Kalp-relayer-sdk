@@ -1,10 +1,10 @@
 /**
- * Ethers.js Provider Example
+ * Ethers.js Provider Example (Ethers v6)
  *
- * This example shows how to use the Kalp Relayer SDK with ethers.js providers.
+ * This example shows how to use the Kalp Relayer SDK with ethers.js v6 providers.
  * Works with:
  * - JsonRpcProvider (Infura, Alchemy, etc.)
- * - Web3Provider (wraps window.ethereum or other EIP-1193 providers)
+ * - BrowserProvider (wraps window.ethereum or other EIP-1193 providers)
  * - Wallet (private key signing)
  */
 
@@ -26,8 +26,8 @@ export async function executeWithPrivateKey() {
     throw new Error('Missing required environment variables');
   }
 
-  // Create provider and wallet
-  const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+  // Create provider and wallet (Ethers v6)
+  const provider = new ethers.JsonRpcProvider(RPC_URL);
   const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
   const userAddress = await wallet.getAddress();
 
@@ -68,9 +68,9 @@ export async function executeWithPrivateKey() {
 }
 
 /**
- * Example 2: Using Web3Provider (wraps browser wallet like MetaMask)
+ * Example 2: Using BrowserProvider (wraps browser wallet like MetaMask)
  */
-export async function executeWithWeb3Provider() {
+export async function executeWithBrowserProvider() {
   if (!window.ethereum) {
     throw new Error('No browser wallet detected');
   }
@@ -78,9 +78,9 @@ export async function executeWithWeb3Provider() {
   // Request account access
   await window.ethereum.request({ method: 'eth_requestAccounts' });
 
-  // Create Web3Provider from window.ethereum
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
+  // Create BrowserProvider from window.ethereum (Ethers v6)
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const signer = await provider.getSigner();
   const userAddress = await signer.getAddress();
 
   console.log('Connected to:', userAddress);
@@ -129,7 +129,7 @@ export async function executeCustomFunction(
     throw new Error('Missing RPC_URL or PRIVATE_KEY');
   }
 
-  const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
+  const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
   const signerFn = createEthersSigner(wallet);
 
@@ -161,12 +161,12 @@ export async function executeCustomFunction(
 }
 
 /**
- * Example usage of custom functions:
+ * Example usage of custom functions (Ethers v6):
  *
  * // Transfer tokens
  * await executeCustomFunction(
  *   'transfer(address,uint256)',
- *   ['0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', ethers.utils.parseEther('10')],
+ *   ['0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', ethers.parseEther('10')],
  *   '0xYourTokenContract'
  * );
  *

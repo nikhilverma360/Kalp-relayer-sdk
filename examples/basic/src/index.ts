@@ -5,6 +5,7 @@ import { ethers } from 'ethers';
  * Sepolia test runner:
  *  - Signs with an ethers Wallet (private key) and submits via Kalp relayer
  *  - Configure via environment variables
+ *  - Uses Ethers v6
  */
 async function main() {
   const {
@@ -23,7 +24,7 @@ async function main() {
   if (!RELAYER_ADDRESS) throw new Error('RELAYER_ADDRESS (Kalp relayer contract) is required');
   if (!SPONSOR_ADDRESS) throw new Error('SPONSOR_ADDRESS is required');
 
-  const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+  const provider = new ethers.JsonRpcProvider(RPC_URL);
   const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
   const userAddress = await wallet.getAddress();
 

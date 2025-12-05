@@ -28,8 +28,9 @@ Before you start, you'll need:
 
 1. **Node.js** (v16 or higher)
 2. **npm** or **yarn**
-3. **A wallet** (MetaMask, WalletConnect, or private key)
-4. **Kalp Relayer configuration**:
+3. **Ethers.js v6** - The SDK uses ethers v6
+4. **A wallet** (MetaMask, WalletConnect, or private key)
+5. **Kalp Relayer configuration**:
    - Relayer contract address
    - Sponsor address
    - Relay API endpoint
@@ -41,7 +42,7 @@ Before you start, you'll need:
 Install the SDK in your project:
 
 ```bash
-npm install kalp-relayer-sdk ethers@^5.7.2
+npm install kalp-relayer-sdk ethers@^6.13.0
 ```
 
 ### For SDK Development (Monorepo)
@@ -120,7 +121,8 @@ console.log('Transaction hash:', result.transactionHash);
 import { KalpRelaySDK, createEthersSigner } from 'kalp-relayer-sdk';
 import { ethers } from 'ethers';
 
-const provider = new ethers.providers.JsonRpcProvider(
+// Ethers v6
+const provider = new ethers.JsonRpcProvider(
   'https://sepolia.infura.io/v3/YOUR_KEY'
 );
 const wallet = new ethers.Wallet('0xYOUR_PRIVATE_KEY', provider);
@@ -168,16 +170,17 @@ await provider.connect();
 const sdk = new KalpRelaySDK(config, createEip1193Signer(provider));
 ```
 
-### Option 4: Web3Provider (Browser Wallets)
+### Option 4: BrowserProvider (Browser Wallets)
 
-**Best for:** Any browser wallet via ethers.js
+**Best for:** Any browser wallet via ethers.js v6
 
 ```typescript
 import { KalpRelaySDK, createEthersSigner } from 'kalp-relayer-sdk';
 import { ethers } from 'ethers';
 
-const provider = new ethers.providers.Web3Provider(window.ethereum);
-const signer = provider.getSigner();
+// Ethers v6
+const provider = new ethers.BrowserProvider(window.ethereum);
+const signer = await provider.getSigner();
 
 const sdk = new KalpRelaySDK(config, createEthersSigner(signer));
 ```
@@ -187,11 +190,12 @@ const sdk = new KalpRelaySDK(config, createEthersSigner(signer));
 ### Use Case 1: Token Transfer
 
 ```typescript
+// Ethers v6: parseEther is now directly on ethers
 const data = sdk.encodeFunctionData(
   'transfer(address,uint256)',
   [
     '0xRecipientAddress',
-    ethers.utils.parseEther('10') // 10 tokens
+    ethers.parseEther('10') // 10 tokens
   ]
 );
 

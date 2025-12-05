@@ -80,8 +80,8 @@ npm run dev:example
 import { KalpRelaySDK, createEthersSigner } from 'kalp-relayer-sdk';
 import { ethers } from 'ethers';
 
-// Setup provider and wallet
-const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+// Setup provider and wallet (Ethers v6)
+const provider = new ethers.JsonRpcProvider(RPC_URL);
 const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
 
 // Create signer function
@@ -163,10 +163,10 @@ const data = sdk.encodeFunctionData('increment()', []);
 ### Function with Parameters
 
 ```typescript
-// Transfer tokens
+// Transfer tokens (Ethers v6)
 const data = sdk.encodeFunctionData(
   'transfer(address,uint256)',
-  ['0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', ethers.utils.parseEther('10')]
+  ['0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', ethers.parseEther('10')]
 );
 
 // Set a value

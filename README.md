@@ -2,14 +2,17 @@
 
 A universal TypeScript SDK for building gasless (meta) transactions using the Kalp Relay system. This SDK handles EIP-712 signing and meta-transaction relay for ERC-2771 compatible contracts.
 
+> **🎉 Version 0.2.0:** Now supports **Ethers v6**! See [Migration Guide](./MIGRATION_TO_V6.md) if upgrading from v5.
+
 ## Features
 
-- ✅ **Universal Wallet Support** - Works with any wallet via ethers.js
+- ✅ **Universal Wallet Support** - Works with any wallet via ethers.js v6
 - ✅ **EIP-712 Typed Data Signing** - Secure, user-friendly transaction signing
 - ✅ **Multiple Provider Support** - MetaMask, WalletConnect, Coinbase Wallet, and more
 - ✅ **TypeScript First** - Full type safety and IntelliSense support
 - ✅ **Monorepo Architecture** - Easy to extend with examples and integrations
 - ✅ **Zero Gas Fees** - Users don't pay for transactions
+- ✅ **Ethers v6** - Modern, faster, smaller bundle size
 
 ## Monorepo Structure
 
@@ -35,7 +38,7 @@ kalp-relayer-sdk/
 ### Using the SDK in your project
 
 ```bash
-npm install kalp-relayer-sdk ethers@^5.7.2
+npm install kalp-relayer-sdk ethers@^6.13.0
 ```
 
 ### Setting up the monorepo for development
@@ -63,7 +66,8 @@ npm run dev:example
 import { KalpRelaySDK, createEthersSigner } from 'kalp-relayer-sdk';
 import { ethers } from 'ethers';
 
-const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+// Ethers v6 syntax
+const provider = new ethers.JsonRpcProvider(RPC_URL);
 const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
 const signerFn = createEthersSigner(wallet);
 
@@ -122,21 +126,22 @@ The SDK provides three signer factory functions for different wallet types:
 
 ### `createEthersSigner(signer)`
 
-For ethers.js `Signer` instances (Wallet, JsonRpcSigner, Web3Provider.getSigner()).
+For ethers.js v6 `Signer` instances (Wallet, JsonRpcSigner, BrowserProvider.getSigner()).
 
 **Use cases:**
 - Node.js scripts with private keys
-- Browser apps using ethers.js Web3Provider
+- Browser apps using ethers.js BrowserProvider
 - Backend services
 
 ```typescript
-// Private key wallet
+// Private key wallet (Ethers v6)
+const provider = new ethers.JsonRpcProvider(RPC_URL);
 const wallet = new ethers.Wallet(privateKey, provider);
 const signerFn = createEthersSigner(wallet);
 
-// Browser wallet via Web3Provider
-const provider = new ethers.providers.Web3Provider(window.ethereum);
-const signer = provider.getSigner();
+// Browser wallet via BrowserProvider (Ethers v6)
+const provider = new ethers.BrowserProvider(window.ethereum);
+const signer = await provider.getSigner();
 const signerFn = createEthersSigner(signer);
 ```
 
