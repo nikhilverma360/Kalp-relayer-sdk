@@ -1,5 +1,6 @@
 import { KalpRelaySDK, createEthersSigner } from 'kalp-relayer-sdk';
 import { ethers } from 'ethers';
+import 'dotenv/config';
 
 /**
  * Sepolia test runner:
@@ -13,6 +14,7 @@ async function main() {
     PRIVATE_KEY,
     RELAYER_ADDRESS,
     SPONSOR_ADDRESS,
+    API_KEY,
     DOMAIN_NAME = 'KalpRelay',
     DOMAIN_VERSION = '1',
     RELAY_API_URL = 'https://alpha-wallet-api.kalp.studio/relayer/relay',
@@ -23,6 +25,7 @@ async function main() {
   if (!PRIVATE_KEY) throw new Error('PRIVATE_KEY is required for signing');
   if (!RELAYER_ADDRESS) throw new Error('RELAYER_ADDRESS (Kalp relayer contract) is required');
   if (!SPONSOR_ADDRESS) throw new Error('SPONSOR_ADDRESS is required');
+  if (!API_KEY) throw new Error('API_KEY is required for relay authentication');
 
   const provider = new ethers.JsonRpcProvider(RPC_URL);
   const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
@@ -38,13 +41,15 @@ async function main() {
       domainVersion: DOMAIN_VERSION,
       sponsorAddress: SPONSOR_ADDRESS,
       relayApiUrl: RELAY_API_URL,
+      apiKey: API_KEY,
     },
     signerFn
   );
 
+  // Use ERC2771 format: append user address to function data
   const relayParams = {
     target: TARGET_CONTRACT,
-    data: sdk.encodeFunctionData('increment()', []),
+    data: sdk.encodeERC2771CallData('increment()', [], userAddress),
     userAddress,
   };
 

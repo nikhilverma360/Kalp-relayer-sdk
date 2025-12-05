@@ -40,12 +40,16 @@ npm run build
 
 ### 2. Configure Environment
 
-Copy the example environment file:
+A `.env` file has been created for you. Edit it with your actual values:
+
 ```bash
-cp .env.example .env
+# Edit .env file in examples/basic/.env
+nano .env
+# or
+code .env
 ```
 
-Edit `.env` with your values:
+You need to provide:
 ```bash
 # Required
 RPC_URL="https://sepolia.infura.io/v3/YOUR_INFURA_KEY"

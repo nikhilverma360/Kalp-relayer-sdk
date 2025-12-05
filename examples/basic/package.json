@@ -7,7 +7,8 @@
   },
   "dependencies": {
     "kalp-relayer-sdk": "file:../../sdk",
-    "ethers": "^6.13.0"
+    "ethers": "^6.13.0",
+    "dotenv": "^16.3.1"
   },
   "devDependencies": {
     "ts-node": "^10.9.2",

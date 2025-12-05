@@ -120,11 +120,12 @@ export const createMetaMaskSigner = (): SignTypedDataFunction => {
  */
 export const createEthersSigner = (signer: any): SignTypedDataFunction => {
   return async (args: any) => {
-    if (!signer._signTypedData) {
-      throw new Error('Signer does not support _signTypedData');
+    // Ethers v6 uses signTypedData (no underscore)
+    if (!signer.signTypedData) {
+      throw new Error('Signer does not support signTypedData');
     }
 
-    const signature = await signer._signTypedData(
+    const signature = await signer.signTypedData(
       args.domain,
       args.types,
       args.message

@@ -335,10 +335,13 @@ export class KalpRelaySDK {
           throw new Error(data.error || data.message || 'Transaction failed');
         }
 
+        // Handle both response formats: direct fields or nested in result
+        const result = data.result || data;
+
         return {
-          txHash: data.txHash,
-          blockNumber: data.blockNumber,
-          gasUsed: data.gasUsed,
+          txHash: result.txHash || data.txHash,
+          blockNumber: result.blockNumber || data.blockNumber,
+          gasUsed: result.gasUsed || data.gasUsed,
           message: data.message,
         };
       } catch (error) {
@@ -444,14 +447,14 @@ export class KalpRelaySDK {
     args: unknown[] = [],
     userAddress: string
   ): string {
-    const functionInterface = new ethers.utils.Interface([`function ${functionSignature}`]);
+    const functionInterface = new ethers.Interface([`function ${functionSignature}`]);
     const baseCallData = functionInterface.encodeFunctionData(
       functionSignature.split('(')[0],
       args
     );
 
     // Append user address for ERC-2771 format
-    return ethers.utils.hexlify(ethers.utils.concat([baseCallData, userAddress]));
+    return ethers.hexlify(ethers.concat([baseCallData, userAddress]));
   }
 
   /**
@@ -462,7 +465,7 @@ export class KalpRelaySDK {
    * @returns Encoded call data
    */
   encodeFunctionData(functionSignature: string, args: unknown[] = []): string {
-    const functionInterface = new ethers.utils.Interface([`function ${functionSignature}`]);
+    const functionInterface = new ethers.Interface([`function ${functionSignature}`]);
     return functionInterface.encodeFunctionData(
       functionSignature.split('(')[0],
       args
