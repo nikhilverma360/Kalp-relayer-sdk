@@ -97,3 +97,36 @@ export type SignTypedDataFunction = (args: {
   message: Record<string, unknown>;
   account?: `0x${string}`;
 }) => Promise<string>;
+
+/** ERC20 Token Transfer Parameters */
+export interface TokenTransferParams {
+  /** ERC20 token contract address */
+  tokenAddress: string;
+  /** Recipient address */
+  recipient: string;
+  /** Amount to transfer (in token's smallest unit, e.g., wei for 18 decimals) */
+  amount: string | bigint;
+  /** User's wallet address */
+  userAddress: string;
+  /** ERC20Facilitator contract address */
+  facilitatorAddress: string;
+  /** Optional deadline for permit signature (Unix timestamp, defaults to 1 hour from now) */
+  deadline?: number;
+}
+
+/** EIP-2612 Permit Domain */
+export interface EIP2612Domain {
+  name: string;
+  version?: string;
+  chainId: number;
+  verifyingContract: string;
+}
+
+/** EIP-2612 Permit Message */
+export interface EIP2612PermitMessage {
+  owner: string;
+  spender: string;
+  value: bigint;
+  nonce: bigint;
+  deadline: bigint;
+}

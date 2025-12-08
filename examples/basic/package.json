@@ -3,7 +3,8 @@
   "private": true,
   "version": "0.2.0",
   "scripts": {
-    "dev": "ts-node --transpile-only --compiler-options '{\"module\":\"CommonJS\"}' src/index.ts"
+    "dev": "ts-node --transpile-only --compiler-options '{\"module\":\"CommonJS\"}' src/index.ts",
+    "test:token-transfer": "ts-node --transpile-only --compiler-options '{\"module\":\"CommonJS\"}' src/test-token-transfer.ts"
   },
   "dependencies": {
     "kalp-relayer-sdk": "file:../../sdk",

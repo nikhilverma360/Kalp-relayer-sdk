@@ -34,7 +34,11 @@ import type {
   RelayTransactionParams,
   RelayResult,
   SignTypedDataFunction,
+  TokenTransferParams,
 } from './types';
+
+// Type alias for ethers provider
+type EthersProvider = InstanceType<typeof ethers.JsonRpcProvider>;
 import {
   WalletNotConnectedError,
   SignatureError,
@@ -48,6 +52,13 @@ import {
   isValidChainId,
   shouldRetryError,
 } from './utils';
+import {
+  getTokenNonce,
+  getTokenDomain,
+  signPermit,
+  encodeFacilitatorCall,
+  calculateDeadline,
+} from './tokenTransfer';
 
 const RELAY_TYPE: Record<string, Array<{ name: string; type: string }>> = {
   RelayRequest: [
@@ -73,6 +84,7 @@ export class KalpRelaySDK {
   private signTypedData: SignTypedDataFunction;
   private currentChainId: number;
   private chainConfigs: Map<number, ChainConfig>;
+  private providers: Map<number, EthersProvider>;
 
   constructor(config: KalpRelayConfig, signTypedDataFn: SignTypedDataFunction) {
     // Validate required fields
@@ -102,8 +114,9 @@ export class KalpRelaySDK {
     this.signTypedData = signTypedDataFn;
     this.currentChainId = config.chainId;
 
-    // Initialize chain configurations
+    // Initialize chain configurations and providers
     this.chainConfigs = new Map();
+    this.providers = new Map();
 
     // Add default chain config
     this.addChainConfig({
@@ -140,6 +153,15 @@ export class KalpRelaySDK {
     }
 
     this.chainConfigs.set(chainConfig.chainId, chainConfig);
+
+    // Create provider if RPC URL is provided
+    if (chainConfig.rpcUrl) {
+      this.providers.set(
+        chainConfig.chainId,
+        new ethers.JsonRpcProvider(chainConfig.rpcUrl)
+      );
+    }
+
     console.log(`✅ Added chain configuration for chain ${chainConfig.chainId}`);
   }
 
@@ -470,5 +492,164 @@ export class KalpRelaySDK {
       functionSignature.split('(')[0],
       args
     );
+  }
+
+  /**
+   * Set or get provider for a specific chain
+   *
+   * @param chainId - Chain ID
+   * @param provider - Optional provider to set (if not provided, returns existing provider)
+   * @returns Provider for the chain
+   */
+  setProvider(chainId: number, provider: EthersProvider): void {
+    this.providers.set(chainId, provider);
+  }
+
+  /**
+   * Get provider for a specific chain
+   *
+   * @param chainId - Chain ID (optional, defaults to current chain)
+   * @returns Provider for the chain
+   * @throws Error if provider is not configured
+   */
+  getProvider(chainId?: number): EthersProvider {
+    const targetChainId = chainId ?? this.currentChainId;
+    const provider = this.providers.get(targetChainId);
+
+    if (!provider) {
+      throw new Error(
+        `No provider configured for chain ${targetChainId}. ` +
+        `Please set an RPC URL in chain config or call setProvider().`
+      );
+    }
+
+    return provider;
+  }
+
+  /**
+   * Execute a gasless ERC20 token transfer using EIP-2612 permit and KalpRelayer
+   *
+   * This high-level method abstracts the complexity of gasless token transfers by:
+   * 1. Fetching the token's nonce for the user
+   * 2. Generating an EIP-2612 permit signature
+   * 3. Encoding a call to the ERC20Facilitator contract
+   * 4. Executing the transaction via the KalpRelayer (gasless)
+   *
+   * @param params - Token transfer parameters
+   * @param chainId - Optional chain ID (uses current chain if not provided)
+   * @returns Promise with transaction result
+   *
+   * @example
+   * ```typescript
+   * const result = await sdk.sendTokenTransfer({
+   *   tokenAddress: '0x...', // ERC20 token with permit support
+   *   recipient: '0x...',
+   *   amount: '1000000000000000000', // 1 token (18 decimals)
+   *   userAddress: '0x...',
+   *   facilitatorAddress: '0x...', // ERC20Facilitator contract
+   *   deadline: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+   * });
+   * console.log('Transfer hash:', result.txHash);
+   * ```
+   */
+  async sendTokenTransfer(
+    params: TokenTransferParams,
+    chainId?: number
+  ): Promise<RelayResult> {
+    const targetChainId = chainId ?? this.currentChainId;
+
+    console.log(`💸 Initiating gasless token transfer on chain ${targetChainId}`);
+
+    // Validate addresses
+    if (!isValidAddress(params.tokenAddress)) {
+      throw new Error('Invalid token address');
+    }
+    if (!isValidAddress(params.recipient)) {
+      throw new Error('Invalid recipient address');
+    }
+    if (!isValidAddress(params.userAddress)) {
+      throw new Error('Invalid user address');
+    }
+    if (!isValidAddress(params.facilitatorAddress)) {
+      throw new Error('Invalid facilitator address');
+    }
+
+    // Convert amount to BigInt
+    const amount = typeof params.amount === 'string'
+      ? BigInt(params.amount)
+      : params.amount;
+
+    if (amount <= 0n) {
+      throw new Error('Amount must be greater than 0');
+    }
+
+    // Get provider for the chain
+    const provider = this.getProvider(targetChainId);
+
+    console.log('📊 Token transfer details:');
+    console.log('  Token:', params.tokenAddress);
+    console.log('  From:', params.userAddress);
+    console.log('  To:', params.recipient);
+    console.log('  Amount:', amount.toString());
+
+    // Step 1: Get token metadata and nonce
+    console.log('🔍 Fetching token metadata and nonce...');
+    const [domain, nonce] = await Promise.all([
+      getTokenDomain(params.tokenAddress, targetChainId, provider),
+      getTokenNonce(params.tokenAddress, params.userAddress, provider),
+    ]);
+
+    console.log(`  Token name: ${domain.name}`);
+    console.log(`  Current nonce: ${nonce}`);
+
+    // Step 2: Calculate deadline
+    const deadline = calculateDeadline(params.deadline);
+    console.log(`  Permit deadline: ${deadline} (${new Date(Number(deadline) * 1000).toISOString()})`);
+
+    // Step 3: Sign EIP-2612 permit
+    console.log('🔐 Requesting EIP-2612 permit signature...');
+    const permitSignature = await signPermit(
+      {
+        tokenAddress: params.tokenAddress,
+        owner: params.userAddress,
+        spender: params.facilitatorAddress,
+        value: amount,
+        nonce,
+        deadline,
+        chainId: targetChainId,
+        domain,
+      },
+      this.signTypedData
+    );
+
+    console.log('✅ Permit signature obtained');
+
+    // Step 4: Encode facilitator call
+    const facilitatorCallData = encodeFacilitatorCall(
+      {
+        tokenAddress: params.tokenAddress,
+        owner: params.userAddress,
+        recipient: params.recipient,
+        amount,
+      },
+      permitSignature,
+      deadline
+    );
+
+    // Step 5: Execute relay transaction
+    console.log('🚀 Executing gasless relay transaction...');
+    const result = await this.executeRelay(
+      {
+        target: params.facilitatorAddress,
+        data: facilitatorCallData,
+        userAddress: params.userAddress,
+      },
+      targetChainId
+    );
+
+    console.log('✅ Gasless token transfer complete!');
+    console.log(`  Transaction hash: ${result.txHash}`);
+
+    return result;
   }
 }

@@ -16,6 +16,9 @@ export type {
   SignTypedDataFunction,
   EIP712Message,
   EIP712Domain,
+  TokenTransferParams,
+  EIP2612Domain,
+  EIP2612PermitMessage,
 } from './types';
 
 export {
@@ -31,3 +34,11 @@ export {
   createEthersSigner,
   createEip1193Signer,
 } from './walletSigners';
+
+export {
+  getTokenNonce,
+  getTokenDomain,
+  signPermit,
+  encodeFacilitatorCall,
+  calculateDeadline,
+} from './tokenTransfer';
