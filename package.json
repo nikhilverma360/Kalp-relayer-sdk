@@ -9,7 +9,9 @@
   "scripts": {
     "build": "npm run build -w sdk",
     "lint": "npm run lint -w sdk",
-    "dev:example": "npm run dev -w examples/basic"
+    "dev:example": "npm run dev -w examples/basic",
+    "dev:frontend": "npm run dev -w examples/frontend",
+    "build:frontend": "npm run build -w examples/frontend"
   }
 }
 

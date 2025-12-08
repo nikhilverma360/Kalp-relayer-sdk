@@ -495,13 +495,42 @@ try {
 
 ## Examples
 
-See the `examples/basic/src/` directory for comprehensive examples:
+### Backend/CLI Examples
+
+See the `examples/basic/src/` directory for Node.js examples:
 
 - `index.ts` - Basic Node.js example with private key
-- `token-transfer-example.ts` - **Gasless ERC20 token transfer (NEW!)**
+- `token-transfer-example.ts` - **Gasless ERC20 token transfer**
+- `test-token-transfer.ts` - Test script for token transfers
 - `metamask-example.ts` - Browser MetaMask integration
 - `walletconnect-example.ts` - WalletConnect v2 integration
 - `ethers-provider-example.ts` - Various ethers.js provider examples
+
+### Frontend Example (React + MetaMask)
+
+**NEW!** Complete React frontend application with MetaMask integration.
+
+See `examples/frontend/` for a full-featured web app:
+
+- 🦊 MetaMask wallet connection
+- 💸 Gasless token transfer UI
+- 📊 Real-time balance display
+- 🎨 Modern, responsive interface
+- ✅ Transaction status tracking
+
+**Quick start:**
+
+```bash
+# Install dependencies
+npm install
+
+# Start the frontend
+npm run dev:frontend
+
+# Open http://localhost:3000
+```
+
+See [Frontend Quick Start Guide](./examples/frontend/QUICKSTART.md) for details.
 
 ## License
 
