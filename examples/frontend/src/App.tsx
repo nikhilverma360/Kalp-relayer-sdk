@@ -255,7 +255,7 @@ function App() {
   return (
     <div className="App">
       <header className="header">
-        <h1>🚀 Kalp Relayer</h1>
+        <h1>Pay</h1>
         <p className="subtitle">Gasless ERC20 Token Transfers with MetaMask</p>
       </header>
 
