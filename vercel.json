@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd $VERCEL_PROJECT_ROOT && npm run build:all",
+  "buildCommand": "cd ../.. && npm run build:all",
   "outputDirectory": "examples/frontend/dist",
   "framework": null
 }
